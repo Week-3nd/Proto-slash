@@ -12,9 +12,10 @@ public class FirstPersonView : MonoBehaviour
 
     void Update()
     {
+        MyController.WantedDirectionLook += MySword.RecoilVector;
         //On tourne la tête dans le sens de la vue
         float t = 1 - Mathf.Pow(SmoothFactor / SmoothFactorDivisor, Time.deltaTime);
         transform.position = Vector3.Lerp(transform.position, MyBody.transform.position, t);
-        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(MyController.WantedDirectionLook + MySword.RecoilVector), t);
+        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(MyController.WantedDirectionLook), t);
     }
 }

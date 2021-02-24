@@ -23,6 +23,8 @@ public class Sword : MonoBehaviour
     public Vector3 RecoilVector;
     public float RecoilSize = 0.0f;
     public float RecoilDuration = 0.5f; //en secondes
+    public float RecoilMultiplier = 1.0f;
+    private float RecoilTimer = 0.0f;
 
     void Start()
     {
@@ -32,14 +34,12 @@ public class Sword : MonoBehaviour
 
     void Update()
     {
-        //gérer le recoil avant qu'il soit de nouveau calculé au besoin
-        RecoilHandler();
 
         //activer l'épée
         if (PlayerController.WantsToSlice && !PreviousWill)
         {
             PlayerInput.MouseSensitivityMultiplier = HoldSensitivityRatio;
-            SwordObject.transform.position = transform.position + SwordForwardOffset * PlayerController.WantedDirectionLook;
+            SwordObject.transform.position = transform.position + SwordForwardOffset * PlayerController.WantedDirectionLook.normalized;
             SwordObject.transform.rotation = transform.rotation;
             SwordObject.SetActive(true);
             AngleList[0] = PlayerController.WantedDirectionLook;
@@ -48,7 +48,7 @@ public class Sword : MonoBehaviour
         //l'épée est active
         if (PlayerController.WantsToSlice && PreviousWill)
         {
-            SwordObject.transform.position = transform.position + SwordForwardOffset * PlayerController.WantedDirectionLook;
+            SwordObject.transform.position = transform.position + SwordForwardOffset * PlayerController.WantedDirectionLook.normalized;
             SwordObject.transform.rotation = transform.rotation;
 
             if ( PlayerController.WantedDirectionLook != AngleList[0] )
@@ -63,14 +63,13 @@ public class Sword : MonoBehaviour
 
             if (SwordCollisionDetector.Colliding)
             {
+                SwordCollisionDetector.Colliding = false;
                 Vector3 Amplitude = AngleList[0] - AngleList[1];
                 float Speed = Amplitude.magnitude / Time.deltaTime;
-                //Debug.Log("Collision! speed :  " + Speed);
-                //Debug.Log(SwordCollisionDetector.Colliding);
-                SwordCollisionDetector.Colliding = false;
-                RecoilVector = -Amplitude.normalized * Speed;
-                RecoilSize = Speed * RecoilDuration;
+                RecoilVector = -Amplitude.normalized * Speed * RecoilMultiplier;
                 //Debug.Log("Recoil : " + Recoil);
+                Debug.Log("Collision!  |speed = " + Speed + "  |RecoilVector : " + RecoilVector + "  |RecoilSize : " + RecoilSize);
+                RecoilTimer = RecoilDuration;
             }
         }
 
@@ -81,15 +80,15 @@ public class Sword : MonoBehaviour
             SwordObject.SetActive(false);
         }
 
+        RecoilHandler();
         PreviousWill = PlayerController.WantsToSlice;
     }
 
     void RecoilHandler()
     {
         //recoil : la size est consommée jusqu'à atteindre zéro
-        RecoilSize -= RecoilVector.magnitude * Time.deltaTime;
-
-        if (RecoilSize >= 0)
+        RecoilTimer -= Time.deltaTime;
+        if (RecoilTimer <= 0)
         {
             RecoilVector = Vector3.zero;
         }

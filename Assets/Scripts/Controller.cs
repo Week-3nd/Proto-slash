@@ -6,7 +6,7 @@ public class Controller : MonoBehaviour
 {
 
     public Vector3 WantedDirectionMove { get; protected set; } = new Vector3(0, 0, 1);
-    public Vector3 WantedDirectionLook { get; protected set; } = new Vector3(0, 0, 1);
+    public Vector3 WantedDirectionLook = new Vector3(0, 0, 1);
     public float WantedSpeed { get; protected set; } = 0;
     public bool WantsToJump { get; protected set; } = false;
     public bool WantsToDash { get; protected set; } = false;
